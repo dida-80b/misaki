@@ -57,7 +57,9 @@ _LARGE_SCALES = [
     (1_000_000_000, "eine Milliarde", "Milliarden"),
     (1_000_000, "eine Millionen", "Millionen"),
 ]
-_PHONE_NUMBER_RE = re.compile(r"(?<![\d.:])\d{2,4}(?:[ -]\d{2,6}){1,}(?![\d.:])")
+_PHONE_NUMBER_RE = re.compile(
+    r"(?<![\d.:])(?:0\d{1,3}(?:[ -]\d{2,9}){1,}|\d{2,4}(?:[ -]\d{2,9}){2,})(?![\d.:])"
+)
 
 
 def _int_to_de(n, standalone=True):
@@ -245,8 +247,17 @@ def normalize_text_de(text):
     text = re.sub(r"§§\s*(?=\d)", "Paragrafen ", text)
     text = re.sub(r"§\s*(?=\d)", "Paragraf ", text)
 
+    # Phone-like digit groups should be read digit-by-digit instead of as one
+    # integer. Must run before the standalone-year pass and the minus/range
+    # pass below: a bare \b\d{4}\b would otherwise grab e.g. the "0221" in
+    # "0221-4711" or the "2024" in "2024-01-15" as a year first, leaving a
+    # stray "-" glued between two spelled-out numbers.
+    text = _PHONE_NUMBER_RE.sub(_phone_repl, text)
+
+    # Standalone negative numbers ("-5 Grad" -> "minus 5 Grad") and number
+    # ranges ("1-3 m" -> "1 bis 3 m", not subtraction). Whatever looked like a
+    # phone number/reference code was already consumed above.
     text = re.sub(r"(?<!\d)-(?=\d)", "minus ", text)
-    # Number ranges: 3-5 m → 3 bis 5 m, 1-3 → 1 bis 3 (not subtraction)
     text = re.sub(r"(?<=\d)-(?=\d)", " bis ", text)
 
     # 4. Currency (symbol before or after amount)
@@ -335,8 +346,6 @@ def normalize_text_de(text):
 
     text = re.sub(r"\b(\d+),(\d+)\b", _decimal_repl, text)
 
-    # Phone-like digit groups should be read digit-by-digit instead of as one integer.
-    text = _PHONE_NUMBER_RE.sub(_phone_repl, text)
     text = re.sub(r"\s*%", " Prozent", text)
 
     # Plain integers. Keep any invalid HH:MM text that survived the time pass unchanged.
