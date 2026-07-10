@@ -245,6 +245,10 @@ def normalize_text_de(text):
     text = re.sub(r"§§\s*(?=\d)", "Paragrafen ", text)
     text = re.sub(r"§\s*(?=\d)", "Paragraf ", text)
 
+    text = re.sub(r"(?<!\d)-(?=\d)", "minus ", text)
+    # Number ranges: 3-5 m → 3 bis 5 m, 1-3 → 1 bis 3 (not subtraction)
+    text = re.sub(r"(?<=\d)-(?=\d)", " bis ", text)
+
     # 4. Currency (symbol before or after amount)
     csym = r"[€$£¥]"
     text = re.sub(
