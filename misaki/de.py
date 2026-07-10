@@ -52,10 +52,10 @@ _TENS = [
     "neunzig",
 ]
 _LARGE_SCALES = [
-    (1_000_000_000_000_000, "eine Trillionen", "Trillionen"),
-    (1_000_000_000_000, "eine Billionen", "Billionen"),
+    (1_000_000_000_000_000, "eine Trillion", "Trillionen"),
+    (1_000_000_000_000, "eine Billion", "Billionen"),
     (1_000_000_000, "eine Milliarde", "Milliarden"),
-    (1_000_000, "eine Millionen", "Millionen"),
+    (1_000_000, "eine Million", "Millionen"),
 ]
 _PHONE_NUMBER_RE = re.compile(
     r"(?<![\d.:])(?:0\d{1,3}(?:[ -]\d{2,9}){1,}|\d{2,4}(?:[ -]\d{2,9}){2,})(?![\d.:])"
